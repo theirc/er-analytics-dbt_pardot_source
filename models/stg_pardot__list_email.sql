@@ -22,7 +22,8 @@ fields as (
 final as (
     
     select 
-        id as list_email_id,
+        /* primary key, schema specific id, schema id, extracted business unit */
+        {{generate_pardot_identifiers('id')}}
         
         /* basics */
         sent_at as list_email_sent_at,
@@ -179,6 +180,7 @@ final as (
         is_paused as is_paused_list_email,
         is_sent as is_sent_list_email,
 
+        /* timestamps */
         created_at as created_timestamp,
         updated_at as updated_timestamp,
         _fivetran_synced

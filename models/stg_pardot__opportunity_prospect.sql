@@ -22,11 +22,20 @@ fields as (
 final as (
     
     select 
-        opportunity_id,
-        prospect_id,
+        /* generate primary key; table doesn't have one */
+        {{ dbt_utils.generate_surrogate_key(['opportunity_id','prospect_id']) }} as id,
+        
+        /* primary key, schema specific id, schema id, extracted business unit */
+        {{generate_pardot_identifiers('id')}}
+        
+        /* timestamps */
         updated_at as updated_timestamp,
         _fivetran_synced,
-        {{ dbt_utils.generate_surrogate_key(['opportunity_id','prospect_id']) }} as opportunity_prospect_id
+
+        /* foreign_keys */
+        {{ generate_pardot_surrogate_key('opportunity_id') }} as opportunity_id,
+        {{ generate_pardot_surrogate_key('prospect_id') }} as prospect_id
+        
     from fields
     
 )

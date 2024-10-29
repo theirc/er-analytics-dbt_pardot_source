@@ -1,4 +1,3 @@
-
 with base as (
 
     select * 
@@ -22,16 +21,22 @@ fields as (
 final as (
     
     select 
-        id as list_id,
+        /* primary key, schema specific id, schema id, extracted business unit */
+        {{generate_pardot_identifiers('id')}}
+        
+        /* attributes */
         name,
         description,
         title,
         is_crm_visible,
         is_public,
         is_dynamic,
+        
+        /* timestamps */
         created_at as created_timestamp,
         updated_at as updated_timestamp,
         _fivetran_synced
+
     from fields
 
 )

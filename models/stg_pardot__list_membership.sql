@@ -22,13 +22,21 @@ fields as (
 final as (
     
     select 
-        id as list_membership_id,
-        prospect_id,
-        list_id,
+        /* primary key, schema specific id, schema id, extracted business unit */
+        {{generate_pardot_identifiers('id')}}
+        
+        /* attributes */
+        opted_out as has_opted_out,
+        
+        /* timestamps */
         created_at as created_timestamp,
         updated_at as updated_timestamp,
-        opted_out as has_opted_out,
-        _fivetran_synced
+        _fivetran_synced,
+
+        /* foreign keys */
+        {{generate_pardot_surrogate_key('prospect_id') }} as prospect_id,
+        {{generate_pardot_surrogate_key('list_id') }} as list_id
+        
     from fields
 )
 

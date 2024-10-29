@@ -29,7 +29,9 @@ base_fields as (
 base_fields_renamed as (
     
     select 
-        id as visitor_activity_id,
+        /* primary key, schema specific id, schema id, extracted business unit */
+        {{generate_pardot_identifiers('id')}}
+        
         type as visitor_activity_type_id,
         type_name as event_type_name,
         prospect_id,
@@ -61,6 +63,7 @@ final as (
         visitor_activity_id,
         
         /* core attributes */
+        pardot_business_unit_abbreviation
         visitor_activity_type,
         event_type_name,
         created_timestamp,
@@ -68,14 +71,18 @@ final as (
         /* timestamps */
         _fivetran_synced,
         
+        /* post-union identifiers */
+        _dbt_source_relation,
+        visitor_activity_schema_specific_id,
+        
         /* foreign keys */
-        campaign_id,
-        list_email_id,
-        opportunity_id,
-        prospect_id,
-        visitor_id,
-        visitor_activity_type_id,
-        email_id,
+        {{ generate_pardot_surrogate_key('campaign_id') }} as campaign_id,
+        {{ generate_pardot_surrogate_key('list_email_id') }} as list_email_id,
+        {{ generate_pardot_surrogate_key('opportunity_id') }} as opportunity_id,
+        {{ generate_pardot_surrogate_key('prospect_id') }} as prospect_id,
+        {{ generate_pardot_surrogate_key('visitor_id') }} as visitor_id,
+        {{ generate_pardot_surrogate_key('visitor_activity_type_id') }} as visitor_activity_type_id,
+        {{ generate_pardot_surrogate_key('email_id') }} as email_id
     
     from joined
 

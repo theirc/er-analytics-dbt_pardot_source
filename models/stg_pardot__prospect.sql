@@ -27,31 +27,30 @@ fields as (
 final as (
     
     select 
-        id as prospect_id,
-        _fivetran_deleted,
-        _fivetran_synced,
+        /* primary key, schema specific id, schema id, extracted business unit */
+        {{generate_pardot_identifiers('id')}}
+        
+        /* attributes - partially organized! */
+        /* pii */
+        email,
+        first_name,
+        
+        /* address */
         address_one,
         address_two,
         annual_revenue,
-        campaign_id,
         city,
         comments,
         company,
         country,
-        created_at as created_timestamp,
-        crm_account_fid,
-        crm_contact_fid,
-        crm_last_sync,
-        crm_lead_fid,
-        crm_owner_fid,
         crm_url,
         department,
-        email,
         employees,
         fax,
-        first_name,
         grade,
         industry,
+        
+        /* opt-in / out */
         is_do_not_call,
         is_do_not_email,
         is_reviewed,
@@ -63,7 +62,6 @@ final as (
         opted_out,
         password,
         phone as phone_number,
-        prospect_account_id,
         recent_interaction,
         salutation,
         score,
@@ -71,11 +69,27 @@ final as (
         state,
         territory,
         updated_at as updated_timestamp,
-        user_id,
         website,
         years_in_business,
-        zip
+        zip,
+
+        /* timestamps */
+        created_at as created_timestamp,
+        crm_last_sync,
+        _fivetran_deleted,
+        _fivetran_synced,
         
+        /* pardot foreign keys */
+        {{ generate_pardot_surrogate_key('campaign_id') }} as campaign_id,
+        {{ generate_pardot_surrogate_key('prospect_account_id') }} as prospect_account_id,
+        {{ generate_pardot_surrogate_key('campaign_id') }} as user_id,
+
+        /* salesforce foreign keys */
+        crm_account_fid,
+        crm_contact_fid,
+        crm_lead_fid,
+        crm_owner_fid
+
         {% if var('prospect_passthrough_columns') %}
         , {{ var('prospect_passthrough_columns')|join(',') }}
         {% endif %}
