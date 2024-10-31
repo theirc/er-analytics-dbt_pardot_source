@@ -63,7 +63,7 @@ final as (
         visitor_activity_id,
         
         /* core attributes */
-        pardot_business_unit_abbreviation
+        pardot_business_unit_abbreviation,
         visitor_activity_type,
         event_type_name,
         created_timestamp,
