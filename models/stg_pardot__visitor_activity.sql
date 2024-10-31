@@ -81,7 +81,7 @@ final as (
         {{ generate_pardot_surrogate_key('opportunity_id') }} as opportunity_id,
         {{ generate_pardot_surrogate_key('prospect_id') }} as prospect_id,
         {{ generate_pardot_surrogate_key('visitor_id') }} as visitor_id,
-        {{ generate_pardot_surrogate_key('visitor_activity_type_id') }} as visitor_activity_type_id,
+        visitor_activity_type_id,
         {{ generate_pardot_surrogate_key('email_id') }} as email_id
     
     from joined
