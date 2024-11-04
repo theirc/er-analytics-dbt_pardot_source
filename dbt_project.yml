@@ -17,3 +17,4 @@ vars:
     opportunity: "{{ source('pardot','opportunity') }}"
     opportunity_prospect: "{{ source('pardot','opportunity_prospect') }}"
     prospect_passthrough_columns: []
+  source_schema: "split_part(_dbt_source_relation, '.', 1) || '.' || split_part(_dbt_source_relation, '.', 2)"
