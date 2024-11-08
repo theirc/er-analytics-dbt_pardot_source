@@ -32,6 +32,7 @@ base_fields_renamed as (
         /* primary key, schema specific id, schema id, extracted business unit */
         {{generate_pardot_identifiers('id')}}
         
+        _dbt_source_relation,
         type as visitor_activity_type_id,
         type_name as event_type_name,
         prospect_id,
@@ -72,7 +73,6 @@ final as (
         _fivetran_synced,
         
         /* post-union identifiers */
-        _dbt_source_relation,
         visitor_activity_schema_specific_id,
         
         /* foreign keys */

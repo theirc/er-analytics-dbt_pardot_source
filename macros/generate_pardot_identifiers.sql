@@ -7,8 +7,6 @@
     
     {{ generate_pardot_surrogate_key(pre_union_primary_key) }} as {{ model }}_id,
     
-
-    _dbt_source_relation,
     {{ var('source_schema') }} as {{ model }}_source_schema,
     regexp_replace(
         regexp_replace(
