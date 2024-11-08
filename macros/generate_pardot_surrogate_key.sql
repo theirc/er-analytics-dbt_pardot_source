@@ -1,8 +1,5 @@
-{% macro generate_pardot_surrogate_key(pre_union_primary_key, model_name=None) %}
-    {% set model = model_name if model_name else this.name.split('__')[-1] %}
+{% macro generate_pardot_surrogate_key(pre_union_primary_key) %}
 
-    {% set source_schema = "split_part(_dbt_source_relation, '.', 1) || '.' || split_part(_dbt_source_relation, '.', 2)" %}
-
-    {{ dbt_utils.generate_surrogate_key([source_schema, pre_union_primary_key]) }}
+    {{ dbt_utils.generate_surrogate_key([ var('source_schema'), pre_union_primary_key]) }}
 
 {% endmacro %}

@@ -1,12 +1,6 @@
 
+
 with base as (
-
-    select * 
-    from {{ ref('stg_pardot__list_email_tmp') }}
-
-),
-
-fields as (
 
     select
         {{
@@ -16,17 +10,54 @@ fields as (
             )
         }}
         
-    from base
+    from {{ ref('stg_pardot__list_email_tmp') }}
 ),
 
-final as (
+fields as (
+
+    select 
+        base.*,
+        
+        {{generate_pardot_identifiers('id')}}
+    
+    from base
+
+),
+
+seed_pardot_business_unit as (
+
+    select 
+        * 
+    
+    from {{ ref('seed_salesforce__d12_codes')}}
+
+),
+
+list_emails_joined as (
+
+    select 
+        *
+    
+    from fields
+    
+    left join seed_pardot_business_unit using (pardot_business_unit_abbreviation)
+
+),
+
+
+list_emails_enhanced as (
     
     select 
         /* primary key, schema specific id, schema id, extracted business unit */
-        {{generate_pardot_identifiers('id')}}
+        list_email_id,
+        list_email_source_schema,
+        pardot_business_unit_abbreviation,
+        mass_market_abbreviation,
+        list_email_schema_specific_id,
         
         /* basics */
         sent_at as list_email_sent_at,
+        {{fiscal_year('list_email_sent_at','list_email_sent')}},
         name as list_email_name,
 
         /* split list email name to parts */
@@ -87,7 +118,7 @@ final as (
 
 
         list_email_name_part_1 as list_email_name_year,
-        list_email_name_year||list_email_name_internal_id as list_email_natural_key,
+        mass_market_abbreviation||list_email_sent_fiscal_year||list_email_name_internal_id as list_email_natural_key,
 
 
         /* derive list email type from split part 3 */
@@ -185,8 +216,8 @@ final as (
         updated_at as updated_timestamp,
         _fivetran_synced
     
-    from fields
+    from list_emails_joined
 
 )
 
-select * from final
+select * from list_emails_enhanced
