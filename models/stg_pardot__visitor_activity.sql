@@ -42,7 +42,8 @@ base_fields_renamed as (
         campaign_id,
         opportunity_id,
         _fivetran_synced,
-        email_id
+        email_id,
+        email_template_id
     
     from base_fields
 
