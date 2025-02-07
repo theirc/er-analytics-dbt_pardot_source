@@ -78,6 +78,7 @@ final as (
         /* foreign keys */
         {{ generate_pardot_surrogate_key('campaign_id') }} as campaign_id,
         {{ generate_pardot_surrogate_key('list_email_id') }} as list_email_id,
+        {{ generate_pardot_surrogate_key('email_template_id') }} as email_template_id,
         {{ generate_pardot_surrogate_key('opportunity_id') }} as opportunity_id,
         {{ generate_pardot_surrogate_key('prospect_id') }} as prospect_id,
         {{ generate_pardot_surrogate_key('visitor_id') }} as visitor_id,
