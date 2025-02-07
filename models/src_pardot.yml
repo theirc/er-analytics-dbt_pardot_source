@@ -298,3 +298,50 @@ sources:
             description: Campaign's name
           - name: cost
             description: Cost associated to the campaign
+
+      - name: email_template
+        identifier: "{{ var('pardot_email_template_identifier', 'email_template')}}"
+        description: Each record represents an email template in Pardot
+        columns:
+          - name: id 
+            description: "{{ doc('email_template_id') }}"
+          - name: _dbt_source_relation
+            description: "{{ doc('_dbt_source_relation') }}"
+          - name: _fivetran_deleted
+            description: "{{ doc('_fivetran_deleted') }}"
+          - name: _fivetran_synced
+            description: "{{ doc('_fivetran_synced') }}"
+          - name: campaign_id
+            description: "{{ doc('campaign_id') }}"
+          - name: created_by_id
+            description: "{{ doc('created_by_id') }}"
+          - name: updated_by_id
+            description: "{{ doc('updated_by_id') }}"
+          - name: created_at
+            description: "{{ doc('created_at') }}"
+          - name: updated_at
+            description: "{{ doc('updated_at') }}"
+          - name: is_auto_responder_email
+            description: "{{ doc('is_auto_responder_email') }}"
+          - name: is_drip_email
+            description: "{{ doc('is_drip_email') }}"
+          - name: is_list_email
+            description: "{{ doc('is_list_email') }}"
+          - name: is_one_to_one_email
+            description: "{{ doc('is_one_to_one_email') }}"
+          - name: name
+            description: "{{ doc('name') }}"
+          - name: subject
+            description: "{{ doc('subject') }}"
+          - name: tag_replacement_language
+            description: "{{ doc('tag_replacement_language') }}"
+          - name: type
+            description: "{{ doc('type') }}"
+          - name: text_message
+            description: "{{ doc('text_message') }}"
+          - name: html_message
+            description: "{{ doc('html_message') }}"
+          - name: folder_id
+            description: "{{ doc('folder_id') }}"
+          - name: tracker_domain_id
+            description: "{{ doc('tracker_domain_id') }}"

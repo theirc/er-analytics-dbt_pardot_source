@@ -275,3 +275,93 @@ models:
         description: ID of the related prospect
       - name: updated_timestamp
         description: Last time record was updated in Pardot
+
+  - name: stg_pardot__email_template_tmp
+    description: Temporary staging table for Pardot email templates; unions together raw tables from all markets
+    columns:
+      - name: _dbt_source_relation
+        description: "{{ doc('_dbt_source_relation') }}"
+      - name: _fivetran_deleted
+        description: "{{ doc('_fivetran_deleted') }}"
+      - name: _fivetran_synced
+        description: "{{ doc('_fivetran_synced') }}"
+      - name: email_template_id
+        description: "{{ doc('email_template_id') }}"
+      - name: campaign_id
+        description: "{{ doc('campaign_id') }}"
+      - name: created_by_id
+        description: "{{ doc('created_by_id') }}"
+      - name: updated_by_id
+        description: "{{ doc('updated_by_id') }}"
+      - name: created_at
+        description: "{{ doc('created_at') }}"
+      - name: updated_at
+        description: "{{ doc('updated_at') }}"
+      - name: is_auto_responder_email
+        description: "{{ doc('is_auto_responder_email') }}"
+      - name: is_drip_email
+        description: "{{ doc('is_drip_email') }}"
+      - name: is_list_email
+        description: "{{ doc('is_list_email') }}"
+      - name: is_one_to_one_email
+        description: "{{ doc('is_one_to_one_email') }}"
+      - name: name
+        description: "{{ doc('name') }}"
+      - name: subject
+        description: "{{ doc('subject') }}"
+      - name: tag_replacement_language
+        description: "{{ doc('tag_replacement_language') }}"
+      - name: type
+        description: "{{ doc('type') }}"
+      - name: text_message
+        description: "{{ doc('text_message') }}"
+      - name: html_message
+        description: "{{ doc('html_message') }}"
+      - name: folder_id
+        description: "{{ doc('folder_id') }}"
+      - name: tracker_domain_id
+        description: "{{ doc('tracker_domain_id') }}"
+
+  - name: stg_pardot__email_template
+    description: Standardized clean version of Pardot email templates; hashes all IDs on original key and source schema to create unique indentifiers across source business units
+    columns:
+      - name: email_template_id
+        description: "{{ doc('email_template_id') }}"
+      - name: email_template_name
+        description: "{{ doc('email_template_name') }}"
+      - name: email_subject
+        description: "{{ doc('email_subject') }}"
+      - name: tag_replacement_language
+        description: "{{ doc('tag_replacement_language') }}"
+      - name: email_type
+        description: "{{ doc('email_type') }}"
+      - name: text_message
+        description: "{{ doc('text_message') }}"
+      - name: html_message
+        description: "{{ doc('html_message') }}"
+      - name: is_auto_responder_email
+        description: "{{ doc('is_auto_responder_email') }}"
+      - name: is_drip_email
+        description: "{{ doc('is_drip_email') }}"
+      - name: is_list_email
+        description: "{{ doc('is_list_email') }}"
+      - name: is_one_to_one_email
+        description: "{{ doc('is_one_to_one_email') }}"
+      - name: created_at
+        description: "{{ doc('created_at') }}"
+      - name: updated_at
+        description: "{{ doc('updated_at') }}"
+      - name: _fivetran_deleted
+        description: "{{ doc('_fivetran_deleted') }}"
+      - name: _fivetran_synced
+        description: "{{ doc('_fivetran_synced') }}"
+      - name: campaign_id
+        description: "{{ doc('campaign_id') }}"
+      - name: created_by_id
+        description: "{{ doc('created_by_id') }}"
+      - name: updated_by_id
+        description: "{{ doc('updated_by_id') }}"
+      - name: folder_id
+        description: "{{ doc('folder_id') }}"
+      - name: tracker_domain_id
+        description: "{{ doc('tracker_domain_id') }}"
