@@ -35,7 +35,8 @@ final as (
         _fivetran_synced,
         
         /* foreign keys */
-        salesforce_id as campaign_salesforce_id
+        salesforce_id as campaign_salesforce_id,
+        'test' as test
         
     from fields
 )
