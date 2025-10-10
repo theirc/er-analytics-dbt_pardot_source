@@ -10,7 +10,7 @@
     {{ var('source_schema') }} as {{ model }}_source_schema,
     regexp_replace(
         regexp_replace(
-            regexp_substr(_dbt_source_relation, 'PARDOT_(_?\\w+)', 1, 1, 'i', 1),
+            regexp_extract(_dbt_source_relation, 'PARDOT_(_?\\w+)', 1),
             '^_',
             ''
         ),
