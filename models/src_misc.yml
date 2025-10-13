@@ -3,7 +3,7 @@ version: 2
 sources:
   - name: box__misc_mm
     description: 'Production Raw data from Mass Market'
-    database: er_raw
+    database: federated_snowflake__er_raw
     schema: box__misc_mm
     loader: fivetran
     description: various MM files that have not yet been deemed to require a specific raw schema
