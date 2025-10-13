@@ -3,12 +3,26 @@
 with base as (
 
     select
-        {{
-            fivetran_utils.fill_staging_columns(
-                source_columns=adapter.get_columns_in_relation(ref('stg_pardot__list_email_tmp')),
-                staging_columns=get_list_email_columns()
-            )
-        }}
+        _dbt_source_relation,
+        id,
+        campaign_id,
+        created_by_id,
+        updated_by_id,
+        email_template_id,
+        tracker_domain_id,
+        html_message,
+        operational_email,
+        name,
+        subject,
+        client_type,
+        sent_at,
+        created_at,
+        updated_at,
+        _fivetran_synced,
+        text_message,
+        is_sent,
+        is_paused,
+        is_deleted
         
     from {{ ref('stg_pardot__list_email_tmp') }}
 ),
@@ -16,7 +30,26 @@ with base as (
 fields as (
 
     select 
-        base.*,
+        _dbt_source_relation,
+        id,
+        campaign_id,
+        created_by_id,
+        updated_by_id,
+        email_template_id,
+        tracker_domain_id,
+        html_message,
+        operational_email,
+        name,
+        subject,
+        client_type,
+        sent_at,
+        created_at,
+        updated_at,
+        _fivetran_synced,
+        text_message,
+        is_sent,
+        is_paused,
+        is_deleted,
         
         {{generate_pardot_identifiers('id')}}
     
@@ -109,12 +142,11 @@ list_emails_enhanced as (
                 then regexp_replace(
                     list_email_name_part_2,
                     '{{ month_full }}', 
-                    '{{ month_abbreviated }}',
-                    1,0, 'ci')
+                    '{{ month_abbreviated }}')
             {% endfor %}
             else list_email_name_part_2
         end as clean_month_names,
-        left(upper(regexp_replace(clean_month_names, '[# ]')),6) as list_email_name_internal_id,
+        left(upper(regexp_replace(clean_month_names, '[# ]', '')),6) as list_email_name_internal_id,
 
 
         list_email_name_part_1 as list_email_name_year,
