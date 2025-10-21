@@ -18,7 +18,7 @@
         ' '
     )) as pardot_business_unit_abbreviation,
 
-    {{ pre_union_primary_key }} as {{ model }}_schema_specific_id
+    {{ pre_union_primary_key }} as {{ model }}_schema_specific_id,
     
 
 {% endmacro %}
