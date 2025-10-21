@@ -49,9 +49,10 @@ fields as (
         text_message,
         is_sent,
         is_paused,
-        is_deleted,
         
         {{generate_pardot_identifiers('id')}}
+        
+        is_deleted
     
     from base
 
