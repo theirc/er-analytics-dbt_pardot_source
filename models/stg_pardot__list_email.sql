@@ -67,6 +67,15 @@ seed_pardot_business_unit as (
 
 ),
 
+seed__pardot__list_email_audience_segments as (
+
+    select 
+        * 
+    
+    from {{ ref('seed__pardot__list_email_audience_segments')}}
+
+),
+
 list_emails_joined as (
 
     select 
@@ -79,7 +88,7 @@ list_emails_joined as (
 ),
 
 
-list_emails_enhanced as (
+mmus_enhanced_pre_fy25 as (
     
     select 
         /* primary key, schema specific id, schema id, extracted business unit */
@@ -251,6 +260,68 @@ list_emails_enhanced as (
     
     from list_emails_joined
 
+),
+
+global_list_emails_standard as ( -- An email specific URL builder was rolled out globally in late FY25, with full adoption across markets from FY26. See https://theirc.github.io/URLBuilder/#emailUrlGenPage
+    
+    select
+        *,
+        /* Parsing part 2 of the list email name into component parts to enable filters/group bys on Power BI reports
+        
+        Example Dec01MLM needs to be broken up further to show month_abbreviation (Dec), email version number (01) and email segment code (MLM) */
+
+        /* Parsing email month_abbreviated */
+        case 
+            when list_email_name_part_1 ilike 'FY%'
+            and character_length(list_email_name_part_2) = 8
+            then left(list_email_name_part_2,3)
+        else null
+        end as email_month_abbreviated,
+
+        /* Utilising the jinja dictionary that Tyler created in the previous CTE, to now map month abbreviations to full month name */
+        case
+            {% for month_full, month_abbreviated in month_abbreviations.items() %}
+            when email_month_abbreviated ilike '{{ month_abbreviated }}' then initcap('{{ month_full }}')
+            {% endfor %}
+        else null
+        end as email_month_full_name,
+
+        /* Parsing email version number */
+        case 
+            when list_email_name_part_1 ilike 'FY%'
+            and character_length(list_email_name_part_2) = 8
+            then substring(list_email_name_part_2, 4, 2) -- Extract positions 4-5 which are always two numbers for version number as per URL builder form
+            else null
+        end as email_version_number,
+
+        /* Parsing audience segment code */
+
+        case 
+            when list_email_name_part_1 ilike 'FY%'
+            and character_length(list_email_name_part_2) = 8
+            then right(list_email_name_part_2, 3)
+        else null
+        end as audience_segment_code,
+
+        seed__pardot__list_email_audience_segments.audience_segment_name as audience_segment_name,
+
+        /* Flag to check that emails are using latest URL builder format from late FY25/early FY26 */
+        case 
+            when list_email_name_part_1 ilike 'FY%' 
+            and character_length(list_email_name_part_2) = 8
+            and audience_segment_code is not null
+            then true
+            else false 
+        end as is_global_standard_url_builder_format
+
+        from mmus_enhanced_pre_fy25
+        left join seed__pardot__list_email_audience_segments
+        on right(list_email_name_part_2, 3) = seed__pardot__list_email_audience_segments.audience_segment_code
+        and list_email_name_part_1 ilike 'FY%'
+        and character_length(list_email_name_part_2) = 8
+
+
+
 )
 
-select * from list_emails_enhanced
+select * from global_list_emails_standard
