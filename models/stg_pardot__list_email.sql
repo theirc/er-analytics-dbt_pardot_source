@@ -153,12 +153,11 @@ mmus_enhanced_pre_fy25 as (
             {% endfor %}
             else list_email_name_part_2
         end as clean_month_names,
-        left(upper(regexp_replace(clean_month_names, '[# ]', '')),6) as list_email_name_internal_id,
+        left(upper(regexp_replace(clean_month_names, '[# ]', '')),6) as mmus_pre_fy25_list_email_name_internal_id,
 
 
         list_email_name_part_1 as list_email_name_year,
-        mass_market_abbreviation||list_email_sent_fiscal_year||list_email_name_internal_id as list_email_natural_key,
-
+        mass_market_abbreviation||list_email_sent_fiscal_year||mmus_pre_fy25_list_email_name_internal_id as mmus_pre_fy25_list_email_natural_key,
 
         /* derive list email type from split part 3 */
         list_email_name_part_4 as list_email_name_parsed_topic,
@@ -263,11 +262,20 @@ global_list_emails_standard as ( -- An email specific URL builder was rolled out
     
     select
         *,
+
+        case 
+            when list_email_name_part_1 ilike 'FY%'
+            and character_length(list_email_name_part_1) = 4
+            then upper(list_email_name_part_1)
+            else null
+        end as list_email_url_builder_fiscal_year,
+
         /* Parsing part 2 of the list email name into component parts to enable filters/group bys on Power BI reports
         
         Example Dec01MLM needs to be broken up further to show month_abbreviation (Dec), email version number (01) and email segment code (MLM) */
 
         /* Parsing email month_abbreviated */
+
         case 
             when list_email_name_part_1 ilike 'FY%'
             and character_length(list_email_name_part_2) in (8,9)
@@ -316,7 +324,17 @@ global_list_emails_standard as ( -- An email specific URL builder was rolled out
             and list_email_url_builder_audience_segment_code is not null
             then true
             else false 
-        end as is_list_email_url_builder_format
+        end as is_list_email_url_builder_format,
+
+        case when is_list_email_url_builder_format then
+            list_email_url_builder_month_abbreviated||list_email_url_builder_version_number||list_email_url_builder_audience_segment_code||coalesce(list_email_url_builder_test_variant,'')
+        else null
+        end as list_email_name_internal_id,
+
+        case when is_list_email_url_builder_format then
+            mass_market_abbreviation||list_email_url_builder_fiscal_year||list_email_name_internal_id
+        else null
+        end as list_email_natural_key
 
         from mmus_enhanced_pre_fy25
 )
