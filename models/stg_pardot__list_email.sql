@@ -273,15 +273,15 @@ global_list_emails_standard as ( -- An email specific URL builder was rolled out
             and character_length(list_email_name_part_2) in (8,9)
             then left(list_email_name_part_2,3)
         else null
-        end as email_url_builder_month_abbreviated,
+        end as list_email_url_builder_month_abbreviated,
 
         /* Utilising the jinja dictionary that Tyler created in the previous CTE, to now map month abbreviations to full month name */
         case
             {% for month_full, month_abbreviated in month_abbreviations.items() %}
-            when email_url_builder_month_abbreviated ilike '{{ month_abbreviated }}' then initcap('{{ month_full }}')
+            when list_email_url_builder_month_abbreviated ilike '{{ month_abbreviated }}' then initcap('{{ month_full }}')
             {% endfor %}
         else null
-        end as email_url_builder_month_full_name,
+        end as list_email_url_builder_month_full_name,
 
         /* Parsing email version number */
         case 
@@ -289,7 +289,7 @@ global_list_emails_standard as ( -- An email specific URL builder was rolled out
             and character_length(list_email_name_part_2) in (8,9)
             then substring(list_email_name_part_2, 4, 2) -- Extract positions 4-5 which are always two numbers for version number as per URL builder form
             else null
-        end as email_url_builder_version_number,
+        end as list_email_url_builder_version_number,
 
         /* Parsing audience segment code */
 
@@ -298,7 +298,7 @@ global_list_emails_standard as ( -- An email specific URL builder was rolled out
             and character_length(list_email_name_part_2) in (8,9)
             then substring(list_email_name_part_2, 6,3) -- Extract positions 6-8 which are always three characters for audience segment code as per URL builder form
         else null
-        end as email_url_builder_audience_segment_code,
+        end as list_email_url_builder_audience_segment_code,
         
         /* Parsing additional testing variants (non mandatory field in Email URL Builder) */
 
@@ -307,16 +307,16 @@ global_list_emails_standard as ( -- An email specific URL builder was rolled out
                 and character_length(list_email_name_part_2) = 9
             then right(list_email_name_part_2, 1) -- Extract position 9 which is the testing variant when present as per URL builder form
             else null
-        end as email_url_builder_test_variant,
+        end as list_email_url_builder_test_variant,
 
         /* Flag to check that emails are using latest URL builder format from late FY25/early FY26 */
         case 
             when list_email_name_part_1 ilike 'FY%' 
             and character_length(list_email_name_part_2) in (8,9)
-            and email_url_builder_audience_segment_code is not null
+            and list_email_url_builder_audience_segment_code is not null
             then true
             else false 
-        end as is_email_url_builder_format
+        end as is_list_email_url_builder_format
 
         from mmus_enhanced_pre_fy25
 )
@@ -327,4 +327,4 @@ global_list_emails_standard.*,
 seed__pardot__list_email_audience_segments.audience_segment_name as email_url_builder_audience_segment_name
 from global_list_emails_standard
 left join seed__pardot__list_email_audience_segments
-on global_list_emails_standard.email_url_builder_audience_segment_code = seed__pardot__list_email_audience_segments.audience_segment_code
+on global_list_emails_standard.list_email_url_builder_audience_segment_code = seed__pardot__list_email_audience_segments.audience_segment_code
