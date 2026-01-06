@@ -342,7 +342,7 @@ global_list_emails_standard as ( -- An email specific URL builder was rolled out
 
 select 
 global_list_emails_standard.*,
-seed__pardot__list_email_audience_segments.audience_segment_name as email_url_builder_audience_segment_name
+seed__pardot__list_email_audience_segments.audience_segment_name as list_email_url_builder_audience_segment_name
 from global_list_emails_standard
 left join seed__pardot__list_email_audience_segments
 on global_list_emails_standard.list_email_url_builder_audience_segment_code = seed__pardot__list_email_audience_segments.audience_segment_code
