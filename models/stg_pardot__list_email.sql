@@ -320,6 +320,7 @@ global_list_emails_standard as ( -- An email specific URL builder was rolled out
         /* Flag to check that emails are using latest URL builder format from late FY25/early FY26 */
         case 
             when list_email_name_part_1 ilike 'FY%' 
+            and character_length(list_email_name_part_1) = 4 
             and character_length(list_email_name_part_2) in (8,9)
             and list_email_url_builder_audience_segment_code is not null
             then true
