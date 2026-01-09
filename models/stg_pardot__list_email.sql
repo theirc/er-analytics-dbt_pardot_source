@@ -76,31 +76,16 @@ seed__pardot__list_email_audience_segments as (
 list_emails_joined as (
 
     select 
-        *
-    
-    from fields
-    
-    left join seed_pardot_business_unit using (pardot_business_unit_abbreviation)
+        fields.*,
+        seed_pardot_business_unit.mass_market_abbreviation,
+        seed_pardot_business_unit.pardot_business_unit_abbreviation,
 
-),
-
-
-mmus_enhanced_pre_fy25 as (
-    
-    select 
-        /* primary key, schema specific id, schema id, extracted business unit */
-        list_email_id,
-        list_email_source_schema,
-        pardot_business_unit_abbreviation,
-        mass_market_abbreviation,
-        list_email_schema_specific_id,
-        
-        /* basics */
+        /* basics - used by both legacy mmus tracking and new cross-market tracking */
         sent_at as list_email_sent_at,
         {{fiscal_year('list_email_sent_at','list_email_sent')}},
         name as list_email_name,
 
-        /* split list email name to parts */
+        /* split list email name to parts - also used by both tracking formats*/
         {% set list_email_name_parts = range(1, 9) %}
         
         {% for list_email_name_part in list_email_name_parts %}
@@ -117,13 +102,39 @@ mmus_enhanced_pre_fy25 as (
             ) as list_email_name_part_{{ list_email_name_part }},
         {% endfor %}
         
-        /* validate whether the email name has mmus formatting, defined: first split part of the name is a year on or after 2022 */    
+        case when list_email_name ilike any ('%test%') then true else false end as is_test,
+
+        /* List email attributes - used by both */
+        subject as list_email_subject,
+        text_message as list_email_message_text,
+        client_type as list_email_client_type,
+        
+        is_deleted as is_deleted_list_email,
+        is_paused as is_paused_list_email,
+        is_sent as is_sent_list_email,
+
+        /* Timestamps - used by both */
+        created_at as created_timestamp,
+        updated_at as updated_timestamp,
+        _fivetran_synced
+    
+    from fields
+    
+    left join seed_pardot_business_unit using (pardot_business_unit_abbreviation)
+
+),
+
+/* legacy MMUS-only logic, prior to introduction of global email URL builder. Keeping in this CTE for historical reference */
+
+mmus_enhanced_pre_fy25 as (
+    
+    select 
+    *,
         case
             when try_cast(list_email_name_part_1 as integer) >= 2022
             then true
             else false
         end as is_mmus_formated_list_email_name,
-        case when list_email_name ilike any ('%test%') then true else false end as is_test,
 
         /* natural key */
         /* cleans list email name month names and special characters to produce uniform coding in the style jan01a */
@@ -152,15 +163,15 @@ mmus_enhanced_pre_fy25 as (
                     '{{ month_abbreviated }}')
             {% endfor %}
             else list_email_name_part_2
-        end as clean_month_names,
-        left(upper(regexp_replace(clean_month_names, '[# ]', '')),6) as mmus_pre_fy25_list_email_name_internal_id,
+        end as mmus_pre_fy25_clean_month_names,
+        left(upper(regexp_replace(mmus_pre_fy25_clean_month_names, '[# ]', '')),6) as mmus_pre_fy25_list_email_name_internal_id,
 
 
         list_email_name_part_1 as list_email_name_year,
         mass_market_abbreviation||list_email_sent_fiscal_year||mmus_pre_fy25_list_email_name_internal_id as mmus_pre_fy25_list_email_natural_key,
 
         /* derive list email type from split part 3 */
-        list_email_name_part_4 as list_email_name_parsed_topic,
+        list_email_name_part_4 as mmus_pre_fy25_list_email_name_parsed_topic,
 
         /* list email segment - special logic to extract conformed attribute from name */
         {% set segment_keywords = {
@@ -195,14 +206,14 @@ mmus_enhanced_pre_fy25 as (
             when list_email_name ilike '{{ segment_keyword }}' then '{{ segment_conformed }}'
         {% endfor %}
             else null
-        end as list_email_keyword_segment,
+        end as mmus_pre_fy25_list_email_keyword_segment,
 
         case
         {% for status_keyword, status_conformed in status_keywords.items() %}
             when list_email_name ilike '{{ status_keyword }}' then '{{ status_conformed }}'
         {% endfor %}
             else null
-        end as list_email_keyword_status,
+        end as mmus_pre_fy25_list_email_keyword_status,
 
         case
         {% for type_keyword, type_conformed in type_keywords.items() %}
@@ -224,7 +235,7 @@ mmus_enhanced_pre_fy25 as (
             then list_email_name_part_{{ list_email_name_part_number }}
             {%- endfor %}
             else null
-        end as segment_keyword_found_string,
+        end as mmus_pre_fy25_segment_keyword_found_string,
         
         /* in which parsed name part the keyword is found */
        case
@@ -238,27 +249,13 @@ mmus_enhanced_pre_fy25 as (
             then 'list_email_name_part_{{ list_email_name_part_number }}'
             {% endfor %}
             else null
-        end as segment_keyword_found_in_list_email_name_part,
-
-        /* list email attributes */
-        subject as list_email_subject,
-        text_message as list_email_message_text,
-        client_type as list_email_client_type,
-        
-        is_deleted as is_deleted_list_email,
-        is_paused as is_paused_list_email,
-        is_sent as is_sent_list_email,
-
-        /* timestamps */
-        created_at as created_timestamp,
-        updated_at as updated_timestamp,
-        _fivetran_synced
+        end as mmus_pre_fy25_segment_keyword_found_in_list_email_name_part
     
     from list_emails_joined
 
 ),
 
-global_list_emails_standard as ( -- An email specific URL builder was rolled out globally in late FY25, with full adoption across markets from FY26. See https://theirc.github.io/URLBuilder/#emailUrlGenPage
+mm_cross_market_url_builder_list_emails_tracking as ( -- An email specific URL builder was rolled out globally in late FY25, with full adoption across markets from FY26. See https://theirc.github.io/URLBuilder/#emailUrlGenPage
     
     select
         *,
@@ -282,14 +279,6 @@ global_list_emails_standard as ( -- An email specific URL builder was rolled out
             then left(list_email_name_part_2,3)
         else null
         end as list_email_url_builder_month_abbreviated,
-
-        /* Utilising the jinja dictionary that Tyler created in the previous CTE, to now map month abbreviations to full month name */
-        case
-            {% for month_full, month_abbreviated in month_abbreviations.items() %}
-            when list_email_url_builder_month_abbreviated ilike '{{ month_abbreviated }}' then initcap('{{ month_full }}')
-            {% endfor %}
-        else null
-        end as list_email_url_builder_month_full_name,
 
         /* Parsing email version number */
         case 
@@ -342,8 +331,8 @@ global_list_emails_standard as ( -- An email specific URL builder was rolled out
 
 
 select 
-global_list_emails_standard.*,
+mm_cross_market_url_builder_list_emails_tracking.*,
 seed__pardot__list_email_audience_segments.audience_segment_name as list_email_url_builder_audience_segment_name
-from global_list_emails_standard
+from mm_cross_market_url_builder_list_emails_tracking
 left join seed__pardot__list_email_audience_segments
-on global_list_emails_standard.list_email_url_builder_audience_segment_code = seed__pardot__list_email_audience_segments.audience_segment_code
+on mm_cross_market_url_builder_list_emails_tracking.list_email_url_builder_audience_segment_code = seed__pardot__list_email_audience_segments.audience_segment_code
