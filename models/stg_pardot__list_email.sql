@@ -220,7 +220,7 @@ mmus_enhanced_pre_fy25 as (
             when list_email_name ilike '{{ type_keyword }}' then '{{ type_conformed }}'
         {% endfor %}
             else null
-        end as list_email_keyword_type,
+        end as mmus_pre_fy25_list_email_keyword_type,
 
         /* in which parsed string the keyword is found */
         {% set list_email_name_segment_part_numbers = range(4, 9) %}
@@ -316,6 +316,16 @@ mm_cross_market_url_builder_list_emails_tracking as ( -- An email specific URL b
             else false 
         end as is_list_email_url_builder_format,
 
+        case 
+            when list_email_name_part_1 ilike 'FY%'
+            and character_length(list_email_name_part_1) = 4
+            and character_length(list_email_name_part_2) in (8,9)
+            then list_email_name_part_3
+            else null
+        end as list_email_url_builder_email_type,
+
+
+        /* Natural key components to join to donations */
         case when is_list_email_url_builder_format then
             list_email_url_builder_month_abbreviated||list_email_url_builder_version_number||list_email_url_builder_audience_segment_code||coalesce(list_email_url_builder_test_variant,'')
         else null
