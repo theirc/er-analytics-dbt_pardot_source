@@ -327,7 +327,7 @@ mm_cross_market_url_builder_list_emails_tracking as ( -- An email specific URL b
 
         /* Natural key components to join to donations */
         case when is_list_email_url_builder_format then
-            list_email_url_builder_month_abbreviated||list_email_url_builder_version_number||list_email_url_builder_audience_segment_code||coalesce(list_email_url_builder_test_variant,'')
+            upper(list_email_url_builder_month_abbreviated)||upper(list_email_url_builder_version_number)||upper(list_email_url_builder_audience_segment_code)||coalesce(list_email_url_builder_test_variant,'')
         else null
         end as list_email_name_internal_id,
 
