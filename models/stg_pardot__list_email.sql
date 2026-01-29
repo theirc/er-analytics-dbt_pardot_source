@@ -167,7 +167,7 @@ mmus_enhanced_pre_fy25 as (
         left(upper(regexp_replace(mmus_pre_fy25_clean_month_names, '[# ]', '')),6) as mmus_pre_fy25_list_email_name_internal_id,
 
 
-        list_email_name_part_1 as list_email_name_year,
+        list_email_name_part_1 as mmus_pre_fy25_list_email_name_year,
         mass_market_abbreviation||list_email_sent_fiscal_year||mmus_pre_fy25_list_email_name_internal_id as mmus_pre_fy25_list_email_natural_key,
 
         /* derive list email type from split part 3 */
@@ -255,7 +255,7 @@ mmus_enhanced_pre_fy25 as (
 
 ),
 
-mm_cross_market_url_builder_list_emails_tracking as ( -- An email specific URL builder was rolled out globally in late FY25, with full adoption across markets from FY26. See https://theirc.github.io/URLBuilder/#emailUrlGenPage
+mm_cross_market_list_emails_tracking as ( -- An email specific URL builder was rolled out globally in late FY25, with full adoption across markets from FY26. See https://theirc.github.io/URLBuilder/#emailUrlGenPage
     
     select
         *,
@@ -265,7 +265,7 @@ mm_cross_market_url_builder_list_emails_tracking as ( -- An email specific URL b
             and character_length(list_email_name_part_1) = 4
             then upper(list_email_name_part_1)
             else null
-        end as list_email_url_builder_fiscal_year,
+        end as list_email_fiscal_year,
 
         /* Parsing part 2 of the list email name into component parts to enable filters/group bys on Power BI reports
         
@@ -278,7 +278,7 @@ mm_cross_market_url_builder_list_emails_tracking as ( -- An email specific URL b
             and character_length(list_email_name_part_2) in (8,9)
             then left(list_email_name_part_2,3)
         else null
-        end as list_email_url_builder_month_abbreviated,
+        end as list_email_month_abbreviated,
 
         /* Parsing email version number */
         case 
@@ -286,7 +286,7 @@ mm_cross_market_url_builder_list_emails_tracking as ( -- An email specific URL b
             and character_length(list_email_name_part_2) in (8,9)
             then substring(list_email_name_part_2, 4, 2) -- Extract positions 4-5 which are always two numbers for version number as per URL builder form
             else null
-        end as list_email_url_builder_version_number,
+        end as list_email_version_number,
 
         /* Parsing audience segment code */
 
@@ -295,7 +295,7 @@ mm_cross_market_url_builder_list_emails_tracking as ( -- An email specific URL b
             and character_length(list_email_name_part_2) in (8,9)
             then substring(list_email_name_part_2, 6,3) -- Extract positions 6-8 which are always three characters for audience segment code as per URL builder form
         else null
-        end as list_email_url_builder_audience_segment_code,
+        end as list_email_audience_segment_code,
         
         /* Parsing additional testing variants (non mandatory field in Email URL Builder) */
 
@@ -304,14 +304,14 @@ mm_cross_market_url_builder_list_emails_tracking as ( -- An email specific URL b
                 and character_length(list_email_name_part_2) = 9
             then right(list_email_name_part_2, 1) -- Extract position 9 which is the testing variant when present as per URL builder form
             else null
-        end as list_email_url_builder_test_variant,
+        end as list_email_test_variant,
 
         /* Flag to check that emails are using latest URL builder format from late FY25/early FY26 */
         case 
             when list_email_name_part_1 ilike 'FY%' 
             and character_length(list_email_name_part_1) = 4 
             and character_length(list_email_name_part_2) in (8,9)
-            and list_email_url_builder_audience_segment_code is not null
+            and list_email_audience_segment_code is not null
             then true
             else false 
         end as is_list_email_url_builder_format,
@@ -322,17 +322,17 @@ mm_cross_market_url_builder_list_emails_tracking as ( -- An email specific URL b
             and character_length(list_email_name_part_2) in (8,9)
             then list_email_name_part_3
             else null
-        end as list_email_url_builder_email_type,
+        end as list_email_type,
 
 
         /* Natural key components to join to donations */
         case when is_list_email_url_builder_format then
-            upper(list_email_url_builder_month_abbreviated)||upper(list_email_url_builder_version_number)||upper(list_email_url_builder_audience_segment_code)||coalesce(list_email_url_builder_test_variant,'')
+            upper(list_email_month_abbreviated)||upper(list_email_version_number)||upper(list_email_audience_segment_code)||coalesce(list_email_test_variant,'')
         else null
         end as list_email_name_internal_id,
 
         case when is_list_email_url_builder_format then
-            mass_market_abbreviation||list_email_url_builder_fiscal_year||list_email_name_internal_id
+            mass_market_abbreviation||list_email_fiscal_year||list_email_name_internal_id
         else null
         end as list_email_natural_key
 
@@ -341,8 +341,8 @@ mm_cross_market_url_builder_list_emails_tracking as ( -- An email specific URL b
 
 
 select 
-mm_cross_market_url_builder_list_emails_tracking.*,
-seed__pardot__list_email_audience_segments.audience_segment_name as list_email_url_builder_audience_segment_name
-from mm_cross_market_url_builder_list_emails_tracking
+mm_cross_market_list_emails_tracking.*,
+seed__pardot__list_email_audience_segments.audience_segment_name as list_email_audience_segment_name
+from mm_cross_market_list_emails_tracking
 left join seed__pardot__list_email_audience_segments
-on mm_cross_market_url_builder_list_emails_tracking.list_email_url_builder_audience_segment_code = seed__pardot__list_email_audience_segments.audience_segment_code
+on mm_cross_market_list_emails_tracking.list_email_audience_segment_code = seed__pardot__list_email_audience_segments.audience_segment_code
