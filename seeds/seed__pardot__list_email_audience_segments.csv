@@ -1,0 +1,51 @@
+audience_segment_code,audience_segment_name
+STM,Standard Mailable
+STN,Standard Nonmailable
+STE,Standard Emergency
+STU,Standard Ukraine
+STA,Standard Active
+STL,Standard Lapsed
+STX,Standard Mix
+STT,Standard Total
+PRO,Prospect
+PGD,Planned Giving Donors
+PGP,Planned Giving Prospects
+MLM,Mid-Level Mailable
+MLN,Mid-Level Nonmailable
+MLE,Mid-Level Emergency
+MLU,Mid-Level Ukraine
+MLA,Mid-Level Active
+MLL,Mid-Level Lapsed
+MLP,Mid-Level Prospect
+MLX,Mid-Level Mix
+MLT,Mid-Level Total
+RSM,Sustainer Mailable
+RSN,Sustainer Nonmailable
+RSE,Sustainer Emergency
+RSU,Sustainer Ukraine
+RSA,Sustainer Active
+RS1,Sustainer Lapsing 1
+RS2,Sustainer Lapsing 2
+RSL,Sustainer Lapsed Total
+RGR,Sustainer Reactivation
+RSX,Sustainer Mix
+RST,Sustainer Total
+AEM,All Engaged Mailable
+AEN,All Engaged Nonmailable
+AET,All Engaged Total
+BRM,Bridge Mailable
+BRN,Bridge Nonmailable
+BRE,Bridge Emergency
+BRU,Bridge Ukraine
+BRA,Bridge Active
+BRL,Bridge Lapsed
+BRX,Bridge Mix
+BRT,Bridge Total
+RIM,RAI Mailable
+RIN,RAI Nonmailable
+RIA,RAI Active
+RIL,RAI Lapsed
+RIX,RAI Mix
+RIT,RAI Total
+ALL,All
+MX,Mixed
