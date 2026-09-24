@@ -115,9 +115,7 @@ list_emails_joined as (
 
         /* Timestamps - used by both */
         created_at as created_timestamp,
-        updated_at as updated_timestamp,
-        _fivetran_synced
-    
+        updated_at as updated_timestamp    
     from fields
     
     left join seed_pardot_business_unit using (pardot_business_unit_abbreviation)
