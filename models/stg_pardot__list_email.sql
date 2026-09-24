@@ -333,6 +333,11 @@ mm_cross_market_list_emails_tracking as ( -- An email specific URL builder was r
         else null
         end as list_email_name_internal_id,
 
+        case when is_list_email_url_builder_format then 
+            mass_market_abbreviation||'-'||list_email_fiscal_year||'-'||list_email_month_abbreviated||'-'||list_email_version_number||coalesce(list_email_test_variant,'')||'-'||list_email_name_part_4
+        else null
+        end as list_email_creative,
+
         case when is_list_email_url_builder_format then
             mass_market_abbreviation||list_email_fiscal_year||list_email_name_internal_id
         else null
