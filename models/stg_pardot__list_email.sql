@@ -78,8 +78,7 @@ list_emails_joined as (
     select 
         fields.*,
         seed_pardot_business_unit.mass_market_abbreviation,
-        seed_pardot_business_unit.pardot_business_unit_abbreviation,
-
+        
         /* basics - used by both legacy mmus tracking and new cross-market tracking */
         sent_at as list_email_sent_at,
         {{fiscal_year('list_email_sent_at','list_email_sent')}},
