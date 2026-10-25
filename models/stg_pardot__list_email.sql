@@ -320,7 +320,8 @@ mm_cross_market_list_emails_tracking as ( -- An email specific URL builder was r
             then list_email_name_part_3
             else null
         end as list_email_type,
-
+        
+        list_email_name_part_4 as list_email_creative,
 
         /* Natural key components to join to donations */
         case when is_list_email_url_builder_format then
@@ -331,9 +332,9 @@ mm_cross_market_list_emails_tracking as ( -- An email specific URL builder was r
         end as list_email_name_internal_id,
 
         case when is_list_email_url_builder_format then 
-            mass_market_abbreviation||'-'||list_email_fiscal_year||'-'||list_email_month_abbreviated||'-'||list_email_version_number||coalesce(list_email_test_variant,'')||'-'||list_email_name_part_4
+            mass_market_abbreviation||'-'||list_email_fiscal_year||'-'||list_email_month_abbreviated||list_email_version_number||coalesce(list_email_test_variant,'')
         else null
-        end as list_email_creative,
+        end as list_email_market_fiscal_aggregate, 
 
         case when is_list_email_url_builder_format then
             mass_market_abbreviation||list_email_fiscal_year||list_email_name_internal_id
